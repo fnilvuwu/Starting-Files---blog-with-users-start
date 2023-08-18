@@ -16,6 +16,9 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
+# Prisma Client Initialization
+prisma = PrismaClient()
+
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     "DATABASE_URL",  "sqlite:///blog.db")
@@ -208,28 +211,35 @@ def add_new_post():
     return render_template("make-post.html", form=form)
 
 
-@app.route("/edit-post/<int:post_id>")
+@app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
 @admin_only
 def edit_post(post_id):
-    post = BlogPost.query.get(post_id)
+    post = prisma.blogPost.find_unique(where={"id": post_id})
+    if not post:
+        abort(404)
+
     edit_form = CreatePostForm(
         title=post.title,
         subtitle=post.subtitle,
-        img_url=post.img_url,
+        img_url=post.imgUrl,
         author=post.author,
         body=post.body
     )
+
     if edit_form.validate_on_submit():
-        post.title = edit_form.title.data
-        post.subtitle = edit_form.subtitle.data
-        post.img_url = edit_form.img_url.data
-        post.author = edit_form.author.data
-        post.body = edit_form.body.data
-        db.session.commit()
+        prisma.blogPost.update(
+            where={"id": post_id},
+            data={
+                "title": edit_form.title.data,
+                "subtitle": edit_form.subtitle.data,
+                "imgUrl": edit_form.img_url.data,
+                "author": edit_form.author.data,
+                "body": edit_form.body.data
+            }
+        )
         return redirect(url_for("show_post", post_id=post.id))
 
     return render_template("make-post.html", form=edit_form)
-
 
 @app.route("/delete/<int:post_id>")
 @admin_only
