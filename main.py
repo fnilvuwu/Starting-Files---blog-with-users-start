@@ -175,18 +175,23 @@ def show_post(post_id):
     return render_template("post.html", post=requested_post, form=form)
 
 
-@ app.route("/about")
+@app.route("/about")
 def about():
     return render_template("about.html")
 
 
-@ app.route("/contact")
+@app.route("/contact")
 def contact():
     return render_template("contact.html")
 
 
-@ app.route("/new-post", methods=["GET", "POST"])
-@ admin_only
+@app.route("/api/hello")
+def api():
+    return render_template("api/hello.js")
+
+
+@app.route("/new-post", methods=["GET", "POST"])
+@admin_only
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -204,8 +209,8 @@ def add_new_post():
     return render_template("make-post.html", form=form)
 
 
-@ app.route("/edit-post/<int:post_id>")
-@ admin_only
+@app.route("/edit-post/<int:post_id>")
+@admin_only
 def edit_post(post_id):
     post = BlogPost.query.get(post_id)
     edit_form = CreatePostForm(
@@ -227,8 +232,8 @@ def edit_post(post_id):
     return render_template("make-post.html", form=edit_form)
 
 
-@ app.route("/delete/<int:post_id>")
-@ admin_only
+@app.route("/delete/<int:post_id>")
+@admin_only
 def delete_post(post_id):
     post_to_delete = BlogPost.query.get(post_id)
     db.session.delete(post_to_delete)
@@ -237,4 +242,4 @@ def delete_post(post_id):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

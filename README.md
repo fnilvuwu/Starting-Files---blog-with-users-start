@@ -1,1 +1,1 @@
-website link hosted on heroku : https://fnilvu-blog.herokuapp.com/
+website link hosted on vercel : https://vercel.com/fnilvuwu/starting-files-blog-with-users-start
